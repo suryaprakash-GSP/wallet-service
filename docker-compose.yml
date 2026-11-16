@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: wallet-postgres
+    environment:
+      TZ: Asia/Kolkata
+      POSTGRES_DB: wallet
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: Surya@2809
+    ports:
+      - "5432:5432"
+    volumes:
+      - wallet-pgdata:/var/lib/postgresql/data
+
+volumes:
+  wallet-pgdata:
