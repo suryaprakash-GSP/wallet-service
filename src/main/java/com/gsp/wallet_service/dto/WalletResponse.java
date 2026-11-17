@@ -8,6 +8,7 @@ public class WalletResponse {
 
     private Long id;
     private String ownerName;
+
     private BigDecimal balance;
     private LocalDateTime createdAt;
 
