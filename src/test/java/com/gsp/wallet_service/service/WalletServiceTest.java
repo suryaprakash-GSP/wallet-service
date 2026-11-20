@@ -10,10 +10,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,5 +75,139 @@ public class WalletServiceTest {
 
     }
 
+    @Test
+    void deposit_shouldIncreaseWalletBalance() {
 
+        Wallet wallet = new Wallet();
+        wallet.setId(1L);
+        wallet.setOwnerName("Surya");
+        wallet.setBalance(new BigDecimal("1000"));
+        when(walletRepository.findById(1L)).thenReturn(Optional.of(wallet));
+        walletService.deposit(1L, new BigDecimal("500"));
+        assertEquals(new BigDecimal("1500"), wallet.getBalance());
+        verify(walletRepository).findById(1L);
+
+
+    }
+
+    @Test
+    void deposit_shouldThrowExceptionWhenWalletNotFound() {
+        when(walletRepository.findById(any(Long.class)))
+                .thenReturn(Optional.empty());
+
+        WalletNotFoundException exception = assertThrows(
+                WalletNotFoundException.class,
+                () -> walletService.deposit(1L, new BigDecimal("1000"))
+        );
+
+        assertEquals("Wallet not found with id:1", exception.getMessage());
+    }
+
+    @Test
+    void withdraw_shouldDecreaseWalletBalance() {
+        Wallet wallet = new Wallet();
+        wallet.setId(1L);
+        wallet.setOwnerName("Surya");
+        wallet.setBalance(new BigDecimal("1000"));
+        when(walletRepository.findById(1L)).thenReturn(Optional.of(wallet));
+        walletService.withdraw(1L, new BigDecimal("500"));
+        assertEquals(new BigDecimal("500"), wallet.getBalance());
+        verify(walletRepository).findById(1L);
+
+    }
+
+    @Test
+    void withdraw_shouldThrowExceptionWhenWalletNotFound() {
+        when(walletRepository.findById(any(Long.class)))
+                .thenReturn(Optional.empty());
+
+        WalletNotFoundException exception = assertThrows(
+                WalletNotFoundException.class,
+                () -> walletService.withdraw(1L, new BigDecimal("1000"))
+        );
+
+        assertEquals("Wallet not found with id:1", exception.getMessage());
+    }
+
+    @Test
+    void withdraw_shouldNotChangeBalanceWhenAmountExceedsBalance() {
+        Wallet wallet = new Wallet();
+        wallet.setId(1L);
+        wallet.setOwnerName("Surya");
+        wallet.setBalance(new BigDecimal("1000"));
+        when(walletRepository.findById(1L)).thenReturn(Optional.of(wallet));
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.withdraw(1L, new BigDecimal("1500")));
+        assertEquals(new BigDecimal("1000"), wallet.getBalance());
+        verify(walletRepository).findById(1L);
+
+    }
+
+    @Test
+    void withdraw_shouldAllowWithdrawalOfExactBalance() {
+        Wallet wallet = new Wallet();
+        wallet.setId(1L);
+        wallet.setOwnerName("Surya");
+        wallet.setBalance(new BigDecimal("1000"));
+        when(walletRepository.findById(1L)).thenReturn(Optional.of(wallet));
+        walletService.withdraw(1L, new BigDecimal("1000"));
+        assertEquals(BigDecimal.ZERO, wallet.getBalance());
+        verify(walletRepository).findById(1L);
+
+    }
+
+    @Test
+    void deposit_shouldThrowExceptionWhenAmountIsZero() {
+        Wallet wallet = new Wallet();
+        wallet.setId(1L);
+        wallet.setOwnerName("Surya");
+        wallet.setBalance(new BigDecimal("1000"));
+        when(walletRepository.findById(1L)).thenReturn(Optional.of(wallet));
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deposit(1L, new BigDecimal("0")));
+        assertEquals(new BigDecimal("1000"), wallet.getBalance());
+        verify(walletRepository).findById(1L);
+
+    }
+
+    @Test
+    void deposit_shouldThrowExceptionWhenAmountIsNegative() {
+        Wallet wallet = new Wallet();
+        wallet.setId(1L);
+        wallet.setOwnerName("Surya");
+        wallet.setBalance(new BigDecimal("1000"));
+        when(walletRepository.findById(1L)).thenReturn(Optional.of(wallet));
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deposit(1L, new BigDecimal("-1")));
+        assertEquals(new BigDecimal("1000"), wallet.getBalance());
+        verify(walletRepository).findById(1L);
+
+    }
+    @Test
+    void withdraw_shouldThrowExceptionWhenAmountIsZero() {
+        Wallet wallet = new Wallet();
+        wallet.setId(1L);
+        wallet.setOwnerName("Surya");
+        wallet.setBalance(new BigDecimal("1000"));
+        when(walletRepository.findById(1L)).thenReturn(Optional.of(wallet));
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.withdraw(1L, BigDecimal.ZERO));
+        assertEquals(new BigDecimal("1000"), wallet.getBalance());
+        verify(walletRepository).findById(1L);
+
+    }
+
+    @Test
+    void withdraw_shouldThrowExceptionWhenAmountIsNegative() {
+        Wallet wallet = new Wallet();
+        wallet.setId(1L);
+        wallet.setOwnerName("Surya");
+        wallet.setBalance(new BigDecimal("1000"));
+        when(walletRepository.findById(1L)).thenReturn(Optional.of(wallet));
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.withdraw(1L, new BigDecimal("-1")));
+        assertEquals(new BigDecimal("1000"), wallet.getBalance());
+        verify(walletRepository).findById(1L);
+
+    }
 }

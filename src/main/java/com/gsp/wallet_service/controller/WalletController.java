@@ -2,6 +2,7 @@ package com.gsp.wallet_service.controller;
 
 import com.gsp.wallet_service.dto.WalletCreateRequest;
 import com.gsp.wallet_service.dto.WalletResponse;
+import com.gsp.wallet_service.dto.WalletTransactionRequest;
 import com.gsp.wallet_service.entity.Wallet;
 import com.gsp.wallet_service.service.WalletService;
 import jakarta.validation.Valid;
@@ -44,7 +45,21 @@ public class WalletController {
                 wallet.getBalance(),
                 wallet.getCreatedAt()
         );
-
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{id}/deposit")
+    public ResponseEntity<Void> deposit(@PathVariable Long id, @Valid @RequestBody WalletTransactionRequest request) {
+        walletService.deposit(id, request.getAmount());
+        return ResponseEntity.noContent().build();
+
+    }
+
+    @PostMapping("/{id}/withdraw")
+    public ResponseEntity<Void> withdraw(@PathVariable Long id, @Valid @RequestBody WalletTransactionRequest request) {
+        walletService.withdraw(id, request.getAmount());
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
